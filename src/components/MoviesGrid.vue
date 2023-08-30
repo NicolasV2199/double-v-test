@@ -5,7 +5,7 @@
 
     </custom-modal>
 
-    <nav class="navigation-menu">
+    <nav class="navigation-menu" :class="{ 'active': activeMovieMenu }">
       <ul class="navigation-list">
         <li class="navigation-option" v-for="option in navOptions" :key="option.id"
           :class="{ 'active': navOption.key == option.key }" @click="changeNavOption(option)">
@@ -20,6 +20,10 @@
           </svg>
           <span>179</span>
         </li>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="30" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6 close-movie-menu" v-show="activeMovieMenu" @click="activeMovieMenu = false">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </ul>
     </nav>
 
@@ -27,7 +31,7 @@
 
       <div class="movies-layout">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6 movies-option-icon">
+          class="w-6 h-6 movies-option-icon movies-menu-icon" @click="activeMovieMenu = true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
 
@@ -40,7 +44,8 @@
 
       <div class="movies-rating">
         <label for="custom-range">IMDB Rating {{ movieRate }}</label>
-        <input type="range" name="range" id="custom-range" class="custom-range" v-model="movieRate" min="1" max="10" step="0.1" @change="multipleFilterData">
+        <input type="range" name="range" id="custom-range" class="custom-range" v-model="movieRate" min="1" max="10"
+          step="0.1" @change="multipleFilterData">
       </div>
 
       <div class="movies-search">
@@ -65,7 +70,8 @@
         <div class="movie-info">
           <h3 class="movie-title">{{ movie.title }}</h3>
           <p class="movie-categories">
-            <span v-for="genre in movie.genre_ids.slice(0, 2)" :key="genre.id">{{ genres.find(g => g.id == genre).name }} </span>
+            <span v-for="genre in movie.genre_ids.slice(0, 2)" :key="genre.id">{{ genres.find(g => g.id == genre).name }}
+            </span>
           </p>
           <div class="movie-hearts">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="30" stroke-width="1.5"
@@ -87,15 +93,15 @@
 
     <div class="pagination">
       <span class="pagination-icon" @click="decreasePage">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
       </span>
       <span>{{ page }}</span>
       <span class="pagination-icon" @click="increasePage">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
         </svg>
       </span>
@@ -161,6 +167,7 @@ export default {
       page: 1,
       movieRate: 1,
       genres: [],
+      activeMovieMenu: false,
     }
   },
 
@@ -170,6 +177,8 @@ export default {
       this.navOption = option;
       this.search = "";
       this.page = 1;
+      this.activeMovieMenu = false;
+      this.getGenres();
       this.getData();
     },
 
@@ -178,7 +187,6 @@ export default {
       this.axios.get(`${this.navOption.path}?page=${this.page}`)
         .then((response) => {
           this.movies = response.data.results;
-          console.log(this.movies);
         })
         .catch(() => {
 
@@ -242,13 +250,13 @@ export default {
       this.$refs.customMovieModal.openModal(movieId, this.navOption.type);
     },
 
-    increasePage(){
-      this.page ++;
+    increasePage() {
+      this.page++;
       this.getData();
     },
 
-    decreasePage(){
-      if(this.page > 1){
+    decreasePage() {
+      if (this.page > 1) {
         this.page--;
         this.getData();
       }
