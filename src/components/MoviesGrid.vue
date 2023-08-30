@@ -39,8 +39,8 @@
       </div>
 
       <div class="movies-rating">
-        <label for="custom-range">IMDB Rating</label>
-        <input type="range" name="range" id="custom-range" class="custom-range">
+        <label for="custom-range">IMDB Rating {{ movieRate }}</label>
+        <input type="range" name="range" id="custom-range" class="custom-range" v-model="movieRate" min="1" max="10" step="0.1" @change="multipleFilterData">
       </div>
 
       <div class="movies-search">
@@ -84,6 +84,7 @@
         </div>
       </article>
     </section>
+
     <div class="pagination">
       <span class="pagination-icon" @click="decreasePage">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -158,6 +159,7 @@ export default {
       modalActive: false,
       search: "",
       page: 1,
+      movieRate: 1,
     }
   },
 
@@ -189,6 +191,22 @@ export default {
     searchData() {
       this.isLoading = true;
       this.axios.get(`/search/${this.navOption.type}?query=${this.search}`)
+        .then((response) => {
+          this.movies = response.data.results;
+        })
+        .catch(() => {
+
+        })
+        .finally(() => {
+          setTimeout(() => {
+            this.isLoading = false;
+          }, 1000);
+        })
+    },
+
+    multipleFilterData() {
+      this.isLoading = true;
+      this.axios.get(`/discover/${this.navOption.type}?vote_average.gte=${this.movieRate}`)
         .then((response) => {
           this.movies = response.data.results;
         })
