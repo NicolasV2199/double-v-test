@@ -1,7 +1,7 @@
 <template>
   <div class="modal" :class="{ 'is-active': isActive }">
     <div class="modal-background" @click="closeModal"></div>
-    <div class="modal-content">
+    <div class="modal-content" id="modal-content">
       <button class="modal-close is-large" aria-label="close" @click="closeModal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
           class="w-6 h-6">
@@ -17,14 +17,14 @@
         <section class="section-right">
 
           <header class="movie-specs">
-            <h1 class="movie-title">{{ movie.title }}</h1>
+            <h1 class="movie-title">{{ movie.title ?? movie.name }}</h1>
             <div class="movie-duration">
               <div>
                 <span v-for="genre in movie.genres?.slice(0, 2)" :key="genre.id" class="genre">
                   {{ genre.name }}
                 </span>
               </div>
-              <span class="release-date">Release date: {{ movie.release_date }}</span>
+              <span class="release-date">Release date: {{ movie.release_date ?? movie.first_air_date }}</span>
             </div>
             <ul class="user-votes">
               <li class="metric">
@@ -99,6 +99,20 @@ export default {
     // movieId: Number,
   },
 
+  computed:{
+    modal(){
+      return document.getElementById('modal-content');
+    }, 
+
+    modalHeight(){
+      return this.modal.clientHeight;
+    },
+
+    modalWidth(){
+      return this.modal.clientWidth;
+    },
+  },
+
   data() {
     return {
       isActive: false,
@@ -126,10 +140,14 @@ export default {
         })
         .finally(() => {
         })
-    }
+    },
+  },
 
+  mounted() {
 
   }
+
+
 };
 </script>
 

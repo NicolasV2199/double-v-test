@@ -59,7 +59,8 @@
         <div class="loader"></div>
       </div>
       <article v-else class="movie-card animate__animated animate__fadeInLeft" v-for="movie in movies" :key="movie.id" @click="showModal(movie.id)">
-        <img :src="`https://image.tmdb.org/t/p/original${movie.poster_path}`" alt="">
+        <img :src="`https://image.tmdb.org/t/p/original${movie.poster_path}`" alt="" v-if="movie.poster_path != null">
+        <img src="/assets/images/no-image.jpg" alt="" v-else>
         <div class="movie-info">
           <h3 class="movie-title">{{ movie.title }}</h3>
           <p class="movie-categories">Action Adventure Thriller</p>
