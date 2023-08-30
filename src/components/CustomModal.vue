@@ -69,7 +69,7 @@
           </div>
 
           <footer class="movie-footer">
-            <a href="" class="trailer">
+            <a :href="`https://www.youtube.com/watch?v=${movie.trailer?.key}`" class="trailer" target="_blank">
               Watch Trailer
               <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="30" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="w-6 h-6">
@@ -122,7 +122,6 @@ export default {
   methods: {
     closeModal() {
       this.isActive = false;
-      //this.$emit('update:isActive', false);
     },
 
     openModal(id, type) {
@@ -134,6 +133,21 @@ export default {
       this.axios.get(`/${type}/${id}`)
         .then((response) => {
           this.movie = response.data;
+        })
+        .catch(() => {
+
+        })
+        .finally(() => {
+          this.getMovieVideos(id, type);
+        })
+    },
+
+    getMovieVideos(id, type) {
+      this.axios.get(`/${type}/${id}/videos`)
+        .then((response) => {
+          const videos = response.data.results;
+          const trailer = videos.find(v => v.type == 'Trailer');
+          this.movie.trailer = trailer;
         })
         .catch(() => {
 
