@@ -2,7 +2,7 @@
   <div class="container">
 
     <custom-modal ref="customMovieModal">
-      
+
     </custom-modal>
 
     <nav class="navigation-menu">
@@ -58,7 +58,8 @@
       <div v-if="isLoading" class="loader-container animate__bounce">
         <div class="loader"></div>
       </div>
-      <article v-else class="movie-card animate__animated animate__fadeInLeft" v-for="movie in movies" :key="movie.id" @click="showModal(movie.id)">
+      <article v-else class="movie-card animate__animated animate__fadeInLeft" v-for="movie in movies" :key="movie.id"
+        @click="showModal(movie.id)">
         <img :src="`https://image.tmdb.org/t/p/original${movie.poster_path}`" alt="" v-if="movie.poster_path != null">
         <img src="/assets/images/no-image.jpg" alt="" v-else>
         <div class="movie-info">
@@ -81,6 +82,21 @@
         </div>
       </article>
     </section>
+    <div class="pagination">
+      <span class="pagination-icon" @click="decreasePage">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+      </span>
+      <span>{{ page }}</span>
+      <span class="pagination-icon" @click="increasePage">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -139,6 +155,7 @@ export default {
       isLoading: true,
       modalActive: false,
       search: "",
+      page: 1,
     }
   },
 
@@ -147,46 +164,59 @@ export default {
     changeNavOption(option) {
       this.navOption = option;
       this.search = "";
+      this.page = 1;
       this.getData();
     },
 
-    getData(){
+    getData() {
       this.isLoading = true;
-      this.axios.get(`${this.navOption.path}`)
-      .then((response) => {
-        this.movies = response.data.results;
-      })
-      .catch(() => {
+      this.axios.get(`${this.navOption.path}?page=${this.page}`)
+        .then((response) => {
+          this.movies = response.data.results;
+        })
+        .catch(() => {
 
-      })
-      .finally(() => {
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 2000);
-      })
+        })
+        .finally(() => {
+          setTimeout(() => {
+            this.isLoading = false;
+          }, 2000);
+        })
     },
 
-    searchData(){
+    searchData() {
       this.isLoading = true;
       this.axios.get(`/search/${this.navOption.type}?query=${this.search}`)
-      .then((response) => {
-        this.movies = response.data.results;
-      })
-      .catch(() => {
+        .then((response) => {
+          this.movies = response.data.results;
+        })
+        .catch(() => {
 
-      })
-      .finally(() => {
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 1000);
-      })
+        })
+        .finally(() => {
+          setTimeout(() => {
+            this.isLoading = false;
+          }, 1000);
+        })
     },
 
     showModal(movieId) {
       this.$refs.customMovieModal.openModal(movieId, this.navOption.type);
-    }
+    },
 
-    
+    increasePage(){
+      this.page ++;
+      this.getData();
+    },
+
+    decreasePage(){
+      if(this.page > 1){
+        this.page--;
+        this.getData();
+      }
+    },
+
+
 
   },
 

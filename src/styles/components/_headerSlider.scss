@@ -21,7 +21,7 @@
     left: 0;
   }
 
-  .video-slide {
+  .movie-slide {
     z-index: 000;
     position: absolute;
     top: 0;
@@ -58,8 +58,19 @@
       }
     }
 
+    .watch-trailer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 200px;
+    }
+
     p {
       margin-bottom: 65px;
+      max-height: 150px;
+      overflow-y: hidden;
+      text-overflow: ellipsis;
+      white-space: pre-wrap;
     }
 
     a {

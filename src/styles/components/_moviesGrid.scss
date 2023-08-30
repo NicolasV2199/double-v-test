@@ -198,6 +198,22 @@
   }
 }
 
+.pagination{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
+
+  .pagination-icon{
+    display: flex;
+
+    &:hover{
+      cursor: pointer;
+    }
+  }
+}
+
 .heart {
   fill: red;
   color: red;
