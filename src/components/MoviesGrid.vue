@@ -64,7 +64,9 @@
         <img src="/assets/images/no-image.jpg" alt="" v-else>
         <div class="movie-info">
           <h3 class="movie-title">{{ movie.title }}</h3>
-          <p class="movie-categories">Action Adventure Thriller</p>
+          <p class="movie-categories">
+            <span v-for="genre in movie.genres?.slice(0, 2)" :key="genre.id">{{ genre.name }}</span>
+          </p>
           <div class="movie-hearts">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="30" stroke-width="1.5"
               stroke="currentColor" class="w-6 h-6 heart">
