@@ -65,7 +65,7 @@
         <div class="movie-info">
           <h3 class="movie-title">{{ movie.title }}</h3>
           <p class="movie-categories">
-            <span v-for="genre in movie.genres?.slice(0, 2)" :key="genre.id">{{ genre.name }}</span>
+            <span v-for="genre in movie.genre_ids.slice(0, 2)" :key="genre.id">{{ genres.find(g => g.id == genre).name }} </span>
           </p>
           <div class="movie-hearts">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="30" stroke-width="1.5"
@@ -160,6 +160,7 @@ export default {
       search: "",
       page: 1,
       movieRate: 1,
+      genres: [],
     }
   },
 
@@ -177,6 +178,7 @@ export default {
       this.axios.get(`${this.navOption.path}?page=${this.page}`)
         .then((response) => {
           this.movies = response.data.results;
+          console.log(this.movies);
         })
         .catch(() => {
 
@@ -193,6 +195,22 @@ export default {
       this.axios.get(`/search/${this.navOption.type}?query=${this.search}`)
         .then((response) => {
           this.movies = response.data.results;
+        })
+        .catch(() => {
+
+        })
+        .finally(() => {
+          setTimeout(() => {
+            this.isLoading = false;
+          }, 1000);
+        })
+    },
+
+    getGenres() {
+      this.isLoading = true;
+      this.axios.get(`/genre/${this.navOption.type}/list`)
+        .then((response) => {
+          this.genres = response.data.genres;
         })
         .catch(() => {
 
@@ -241,6 +259,7 @@ export default {
   },
 
   mounted() {
+    this.getGenres();
     this.getData();
   }
 }
