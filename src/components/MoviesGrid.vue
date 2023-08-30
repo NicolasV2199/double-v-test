@@ -1,13 +1,17 @@
 <template>
   <div class="container">
+
+    <custom-modal ref="customMovieModal">
+      
+    </custom-modal>
+
     <nav class="navigation-menu">
       <ul class="navigation-list">
-        <li>In theaters</li>
-        <li>Coming soon</li>
-        <li>Charts</li>
-        <li>Tv Series</li>
-        <li>Trailers</li>
-        <li>More</li>
+        <li class="navigation-option" v-for="option in navOptions" :key="option.id"
+          :class="{ 'active': navOption.key == option.key }" @click="changeNavOption(option)">
+          {{ option.text }}
+        </li>
+        <li class="navigation-option">More</li>
         <li class="movies-rate">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
             class="w-6 h-6">
@@ -18,6 +22,7 @@
         </li>
       </ul>
     </nav>
+
     <div class="movies-options">
 
       <div class="movies-layout">
@@ -34,14 +39,14 @@
       </div>
 
       <div class="movies-rating">
-        <label for="range">IMDB Rating</label>
-        <input type="range" name="range" id="" class="custom-range">
+        <label for="custom-range">IMDB Rating</label>
+        <input type="range" name="range" id="custom-range" class="custom-range">
       </div>
 
       <div class="movies-search">
-        <input type="text">
+        <input type="text" v-model="search">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6 movies-option-icon">
+          class="w-6 h-6 movies-option-icon search-icon" @click="searchData">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
@@ -50,23 +55,26 @@
     </div>
 
     <section class="movies-grid">
-      <article class="movie-card" v-for="index in 9" :key="index">
-        <img src="/assets/images/instrumentos.webp" alt="">
+      <div v-if="isLoading" class="loader-container animate__bounce">
+        <div class="loader"></div>
+      </div>
+      <article v-else class="movie-card animate__animated animate__fadeInLeft" v-for="movie in movies" :key="movie.id" @click="showModal(movie.id)">
+        <img :src="`https://image.tmdb.org/t/p/original${movie.poster_path}`" alt="">
         <div class="movie-info">
-          <h3 class="movie-title">Mad Max</h3>
+          <h3 class="movie-title">{{ movie.title }}</h3>
           <p class="movie-categories">Action Adventure Thriller</p>
           <div class="movie-hearts">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="30" stroke-width="1.5"
-              stroke="currentColor" class="w-6 h-6">
+              stroke="currentColor" class="w-6 h-6 heart">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
-            <span>8.3</span>
+            <span>{{ movie.vote_average }}</span>
           </div>
           <div class="triangle-left">
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="w-6 h-6 movie-plus-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-6 h-6 movie-plus-icon">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
           </svg>
         </div>
@@ -76,8 +84,114 @@
 </template>
 
 <script>
+import CustomModal from './CustomModal.vue';
 export default {
+  components: { CustomModal },
 
+  data() {
+    return {
+      navOptions: [
+        {
+          id: 1,
+          key: 'in-theaters',
+          text: 'In theaters',
+          path: '/movie/now_playing',
+          type: 'movie'
+        },
+        {
+          id: 2,
+          key: 'coming-soon',
+          text: 'Coming soon',
+          path: '/movie/upcoming',
+          type: 'movie',
+        },
+        {
+          id: 3,
+          key: 'movie-top-rated',
+          text: 'Top rated',
+          path: '/movie/top_rated',
+          type: 'movie',
+        },
+        {
+          id: 4,
+          key: 'tv-series',
+          text: 'TV Series',
+          path: '/tv/top_rated',
+          type: 'tv'
+        },
+        {
+          id: 5,
+          key: 'tv-on-air',
+          text: 'Series on Air',
+          path: '/tv/on_the_air',
+          type: 'tv',
+        },
+      ],
+      navOption: {
+        id: 1,
+        key: 'in-theaters',
+        text: 'In theaters',
+        path: '/movie/now_playing',
+        type: 'movie'
+      },
+      movies: [],
+      isLoading: true,
+      modalActive: false,
+      search: "",
+    }
+  },
+
+  methods: {
+
+    changeNavOption(option) {
+      this.navOption = option;
+      this.search = "";
+      this.getData();
+    },
+
+    getData(){
+      this.isLoading = true;
+      this.axios.get(`${this.navOption.path}`)
+      .then((response) => {
+        this.movies = response.data.results;
+      })
+      .catch(() => {
+
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 2000);
+      })
+    },
+
+    searchData(){
+      this.isLoading = true;
+      this.axios.get(`/search/${this.navOption.type}?query=${this.search}`)
+      .then((response) => {
+        this.movies = response.data.results;
+      })
+      .catch(() => {
+
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 1000);
+      })
+    },
+
+    showModal(movieId) {
+      this.$refs.customMovieModal.openModal(movieId, this.navOption.type);
+    }
+
+    
+
+  },
+
+  mounted() {
+    this.getData();
+  }
 }
 </script>
 
